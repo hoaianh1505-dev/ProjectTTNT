@@ -43,8 +43,8 @@ def load_data(path):
 
 def preprocess_data(df):
     print("Preprocessing data...")
-    # Loại bỏ cột không dùng
-    drop_cols = ["CUST_ID", "CustomerID", "CUSTOMER_ID", "TENURE"]
+    # Loại bỏ cột không dùng (Giữ lại TENURE theo báo cáo)
+    drop_cols = ["CUST_ID", "CustomerID", "CUSTOMER_ID"]
     df_clean = df.drop(columns=[c for c in drop_cols if c in df.columns])
     
     # Lấy cột số và điền dữ liệu thiếu
@@ -64,7 +64,7 @@ def find_optimal_k(X_scaled):
     sil_scores = []
 
     for k in Ks:
-        km = KMeans(n_clusters=k, n_init=20, random_state=42)
+        km = KMeans(n_clusters=k, n_init=10, random_state=42)
         labels = km.fit_predict(X_scaled)
         inertias.append(km.inertia_)
         sil_scores.append(silhouette_score(X_scaled, labels))
@@ -138,13 +138,13 @@ def main():
     df = load_data(DATA_PATH)
     X_scaled, feature_cols, df_features = preprocess_data(df)
     
-    # 2. Tìm K tối ưu (tùy chọn, uncomment để chạy)
-    # find_optimal_k(X_scaled)
+    # 2. Tìm K tối ưu (K=4)
+    find_optimal_k(X_scaled)
 
     # 3. Chạy K-Means (K=4 cố định theo bài toán)
     k = 4
     print(f"Clustering with K={k}...")
-    km = KMeans(n_clusters=k, n_init=50, random_state=42)
+    km = KMeans(n_clusters=k, n_init=10, random_state=42)
     df['Cluster'] = km.fit_predict(X_scaled)
     
     # 4. Phân tích & Lưu

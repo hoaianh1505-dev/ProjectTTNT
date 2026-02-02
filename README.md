@@ -8,85 +8,57 @@ Dự án này sử dụng thuật toán **K-Means Clustering** để phân nhóm
 customer-clustering/
 ├── data/
 │   ├── raw/               # Dữ liệu gốc (credit_card_customers.csv)
-│   └── processed/         # Dữ liệu sau khi phân cụm và bảng tóm tắt (cluster_summary.csv, ... )
+│   └── processed/         # Dữ liệu sau khi phân cụm và bảng tóm tắt
 ├── results/
-│   └── figures/           # Biểu đồ (Elbow, Silhouette, PCA)
+│   └── run_YYYYMMDD_.../  # Kết quả mỗi lần chạy (biểu đồ, bảng số liệu)
 ├── src/
-│   └── kmeans_clustering.py  # Script chính thực hiện phân cụm
-├── requirements.txt       # Danh sách các thư viện cần thiết
+│   └── kmeans_clustering.py  # Script chính (đã được tối ưu hóa)
+├── requirements.txt       # Danh sách thư viện
 └── README.md              # Tài liệu dự án
 ```
 
 ## Yêu cầu cài đặt
 
-Đảm bảo bạn đã cài đặt Python. Cài đặt các thư viện cần thiết bằng lệnh:
+Bạn cần cài đặt Python và các thư viện cần thiết:
 
 ```bash
 pip install -r requirements.txt
 ```
 
+*(Các thư viện chính: `pandas`, `numpy`, `scikit-learn`, `matplotlib`)*
+
 ## Cách chạy dự án
 
-Để thực hiện phân cụm, chạy script `kmeans_clustering.py` từ thư mục gốc hoặc thư mục `src`:
+Chạy file script chính từ thư mục gốc:
 
 ```bash
 python src/kmeans_clustering.py
 ```
 
-## Quy trình xử lý (Pipeline)
+### Quá trình thực hiện của code:
+1.  **Load Data**: Tự động tìm file csv trong `data/raw/` (mặc định là `credit_card_customers.csv`).
+2.  **Preprocessing**: Làm sạch dữ liệu, xử lý giá trị thiếu, và chuẩn hóa (Scaling).
+3.  **Clustering**: Phân chia khách hàng thành 4 nhóm (K=4) bằng K-Means.
+    *   *(Tùy chọn: Bạn có thể bỏ comment dòng `find_optimal_k` trong code để chạy lại thuật toán Elbow/Silhouette tìm K).*
+4.  **Analysis**: Tính toán các chỉ số trung bình của từng nhóm.
+5.  **Visualization**: Vẽ và lưu các biểu đồ vào thư mục `results/`.
 
-1.  **Load Data**: Đọc dữ liệu từ `data/raw/credit_card_customers.csv`.
-2.  **Preprocessing**: 
-    - Loại bỏ các cột không cần thiết (`CUST_ID`, `TENURE`).
-    - Xử lý dữ liệu thiếu (Imputation).
-    - Chuẩn hóa dữ liệu (Standard Scaling).
-3.  **Clustering**:
-    - Xác định K tối ưu bằng phương pháp **Elbow** và **Silhouette Score**.
-    - Chạy K-Means với K tối ưu.
-4.  **Analysis & Visualization**:
-    - Lưu biểu đồ đánh giá vào `results/figures/`.
-    - Lưu dữ liệu đã gắn nhãn cụm vào `data/processed/`.
-    - In ra đặc điểm trung bình của từng nhóm để phân tích.
+## Kết quả đầu ra
 
-## Kết quả
+Sau khi chạy xong, kết quả sẽ nằm trong thư mục `results/run_<thời-gian>/`:
 
-Mỗi lần chạy script, kết quả sẽ được lưu vào một thư mục mới trong `results/` với tên theo định dạng `run_YYYYMMDD_HHMMSS`.
+-   **Biểu đồ (`figures/`)**:
+    -   `pca_clusters_2d.png`: Biểu đồ phân cụm (PCA).
+    -   `cluster_counts.png`: Số lượng khách hàng mỗi nhóm.
+    -   `radar_chart.png`: So sánh đặc điểm các nhóm (Radar chart).
+    -   `elbow_method.png` / `silhouette_scores.png` (nếu chạy tìm K).
+-   **Dữ liệu (`*.csv`)**:
+    -   `clustered_data.csv`: Dữ liệu gốc kèm cột `Cluster`.
+    -   `cluster_summary.csv`: Bảng đặc điểm trung bình của từng nhóm.
 
-Cấu trúc mỗi lần chạy:
-- **`results/run_<timestamp>/figures/`**: Chứa các biểu đồ (Elbow, Silhouette, PCA).
-- **`results/run_<timestamp>/data/`**: Chứa dữ liệu kết quả của lần chạy đó.
+## Cải tiến & Tái cấu trúc
 
-Ngoài ra, bản sao mới nhất cũng được lưu tại:
-- **`data/processed/`**: Dữ liệu đã gắn nhãn và bảng tóm tắt mới nhất.
-
-## Kiểm tra phù hợp với "Đề tài 5: Áp dụng thuật toán K-means để phân cụm khách hàng"
-
-- Yêu cầu chính:
-  - Dữ liệu khách hàng: sử dụng file `data/raw/credit_card_customers.csv` — OK
-  - Thuật toán: K-Means — OK (được sử dụng trong `src/kmeans_clustering.py`)
-  - Tiền xử lý: loại bỏ cột ID/TENURE, impute, chuẩn hoá — OK (StandardScaler, median imputation)
-  - Chọn K: Elbow + Silhouette — OK (cả hai biểu đồ được sinh)
-  - Lưu kết quả: dữ liệu có cột `Cluster`, bảng `cluster_summary.csv`, biểu đồ vào `results/figures/` — OK
-
-- Gợi ý cải tiến (không bắt buộc):
-  - Đóng gói logic vào hàm `main()` và thêm CLI/logging để chạy linh hoạt.
-  - Tránh gọi plt.show() khi chạy trên server/headless (chỉ lưu ảnh).
-  - Lưu scaler/mô hình nếu cần tái sử dụng.
-  - Thêm mô tả/nhãn cụm trong báo cáo hoặc notebook phân tích.
-
-## Lưu ý về tái cấu trúc
-
-- Thư mục `report/` (nếu trống) và `outputs/tables/` được loại bỏ trong cấu trúc đề xuất.
-- `outputs/` được đổi tên thành `results/`; tất cả biểu đồ lưu ở `results/figures/`.
-- Bảng/tóm tắt lưu ở `data/processed/` (ví dụ `cluster_summary.csv` và `credit_card_customers_with_clusters.csv`).
-
-## Verification Plan
-
-1. Chạy script:
-```bash
-python src/kmeans_clustering.py
-```
-2. Kiểm tra:
-- `report/` và `outputs/` không tồn tại (hoặc đã được loại bỏ nếu có).
-- `results/figures/` chứa: `elbow_method.png`, `silhouette_scores.png`, `pca_clusters_2d.png`.
-- `data/processed/` chứa: `credit_card_customers_with_clusters.csv`, `cluster_summary.csv`.
+Code đã được tái cấu trúc để sạch sẽ và dễ bảo trì hơn:
+-   Sử dụng hàm (`load_data`, `preprocess_data`, `main`...) thay vì viết tuần tự.
+-   Dễ dàng đọc hiểu luồng xử lý chính.
+-   Tự động quản lý thư mục đầu ra theo thời gian chạy.
